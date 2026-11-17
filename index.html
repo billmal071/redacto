@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redacto - redact on your device, draft in the cloud</title>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo">▮▮</span> Redacto</div>
+  <p class="tag">Your sensitive documents never leave your device unredacted.</p>
+</header>
+
+<main>
+  <ol class="steps" aria-label="Progress">
+    <li id="s1" class="active"><b>1</b> Paste</li>
+    <li id="s2"><b>2</b> Review what leaves your device</li>
+    <li id="s3"><b>3</b> Approve and send</li>
+  </ol>
+
+  <section class="card" id="card1">
+    <h2>1. Paste the dispute</h2>
+    <p class="hint">Use a synthetic or non-sensitive sample while testing. Personal data is found and replaced with tokens before anything is sent to the cloud.</p>
+    <textarea id="in" rows="6" aria-label="Dispute text">Hi, I'm Alex Example (alex@example.test, 555-0100). Charge on account 0000-1111 at 1 Test Street was wrong. Alex Example</textarea>
+    <div class="row">
+      <button id="redact" class="primary">Find and redact personal data</button>
+      <label class="toggle"><input type="checkbox" id="forcecloud"> Force cloud (skip on-device)</label>
+      <span id="avail" class="muted"></span>
+    </div>
+    <p id="status" class="status" role="status"></p>
+  </section>
+
+  <section class="card hidden" id="card2">
+    <h2>2. What leaves your device</h2>
+    <div id="route" class="route"></div>
+    <div class="cols">
+      <div><h3>Original <span class="pill local">stays on this device</span></h3><div id="orig" class="doc"></div></div>
+      <div><h3>Redacted payload <span class="pill cloud">sent to the cloud</span></h3><div id="redacted" class="doc"></div></div>
+    </div>
+    <p id="legend" class="muted"></p>
+    <div class="row"><button id="draft" class="primary">Send redacted text to the cloud and draft a response</button></div>
+  </section>
+
+  <section class="card hidden" id="card3">
+    <h2>3. Review, approve, finish</h2>
+    <h3>Cloud draft <span class="pill cloud">tokens only, no personal data</span></h3>
+    <div id="draftout" class="doc"></div>
+    <label class="approve"><input type="checkbox" id="approve"> I reviewed what was sent and the draft.</label>
+    <div class="row"><button id="final" class="primary" disabled>Fill in my details locally</button></div>
+    <div id="finalwrap" class="hidden">
+      <h3>Final letter <span class="pill local">built on this device</span></h3>
+      <p id="unresolved" class="route cloud hidden"></p>
+      <div id="finalout" class="doc"></div>
+      <div class="row"><button id="copy">Copy letter</button><span id="copied" class="muted"></span></div>
+    </div>
+  </section>
+</main>
+<footer>Redacto · Firebase AI Logic hybrid inference · Gemini Nano on-device, Gemini in the cloud</footer>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
