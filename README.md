@@ -1,5 +1,7 @@
 # Redacto
 
+Live demo: https://redacto-hack.web.app
+
 Privacy-first dispute assistant built on **Firebase AI Logic hybrid inference**. Sensitive documents never leave your device unredacted.
 
 Paste the text of a payment dispute. Redacto finds the personal data **on your device**, swaps it for tokens, lets you review exactly what would leave the browser, drafts the response letter **in the cloud from the redacted text only**, and fills your real details back in **locally** after you approve.
@@ -39,7 +41,7 @@ npm run dev
 ```
 
 1. Firebase console: create a project, **AI Logic > Get started > Gemini Developer API**, add a Web app, copy its config into `.env.local`.
-2. App Check: register the web app, run the dev server, copy the debug token the SDK stores for your browser and add it under **Manage debug tokens**. For a deployed build set `VITE_RECAPTCHA_SITE_KEY`.
+2. App Check: register the web app, run the dev server, copy the debug token the SDK stores for your browser and add it under **Manage debug tokens**. For a deployed build create a reCAPTCHA Enterprise (Fraud Defense) key allowing your Hosting domain, register it in App Check and set `VITE_RECAPTCHA_SITE_KEY`.
 3. On-device (optional): Chrome desktop, `chrome://flags/#prompt-api-for-gemini-nano-multimodal-input` = Enabled, relaunch. See Chrome's Prompt API docs for hardware requirements and model download size.
 
 Never commit `.env.local` or debug tokens. All sample data in this repo is synthetic.

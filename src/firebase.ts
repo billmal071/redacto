@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import { getAI, getGenerativeModel, GoogleAIBackend, InferenceMode, Schema } from "firebase/ai";
 
 const env = import.meta.env;
@@ -35,7 +35,7 @@ function setupAppCheck(app: ReturnType<typeof getApp>) {
   if (env.VITE_RECAPTCHA_SITE_KEY || env.DEV) {
     // in dev the debug token replaces the provider, so the key may be a placeholder
     initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(env.VITE_RECAPTCHA_SITE_KEY || "dev-placeholder"),
+      provider: new ReCaptchaEnterpriseProvider(env.VITE_RECAPTCHA_SITE_KEY || "dev-placeholder"),
       isTokenAutoRefreshEnabled: true,
     });
   }
