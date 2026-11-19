@@ -3,60 +3,109 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <title>Redacto - redact on your device, draft in the cloud</title>
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem("redacto-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.dataset.theme = t;
+  } catch (e) { document.documentElement.dataset.theme = "light"; }
+})();
+</script>
 </head>
 <body>
 <header class="top">
-  <div class="brand"><span class="logo">▮▮</span> Redacto</div>
-  <p class="tag">Your sensitive documents never leave your device unredacted.</p>
+  <div class="brand"><img src="/favicon.svg" alt="" width="30" height="30"> Redacto</div>
+  <button id="theme" class="ghost" type="button" aria-label="Switch to dark mode"><span aria-hidden="true" id="themeicon">☾</span> <span id="themelabel">Dark</span></button>
 </header>
 
 <main>
+  <section class="hero">
+    <h1>Redact on your device.<br>Draft in the cloud.</h1>
+    <p>Paste a payment dispute. Personal details are swapped for tokens on your device, so the cloud only ever reads the redacted text.</p>
+  </section>
+
   <ol class="steps" aria-label="Progress">
     <li id="s1" class="active"><b>1</b> Paste</li>
-    <li id="s2"><b>2</b> Review what leaves your device</li>
-    <li id="s3"><b>3</b> Approve and send</li>
+    <li id="s2"><b>2</b> Review</li>
+    <li id="s3"><b>3</b> Approve</li>
   </ol>
 
-  <section class="card" id="card1">
-    <h2>1. Paste the dispute</h2>
-    <p class="hint">Use a synthetic or non-sensitive sample while testing. Personal data is found and replaced with tokens before anything is sent to the cloud.</p>
-    <textarea id="in" rows="6" aria-label="Dispute text">Hi, I'm Alex Example (alex@example.test, 555-0100). Charge on account 0000-1111 at 1 Test Street was wrong. Alex Example</textarea>
+  <section class="zone device" id="card1">
+    <div class="zone-label">On your device</div>
+    <label class="field" for="in">Dispute text</label>
+    <textarea id="in" class="sheet" rows="5" spellcheck="false">Hi, I'm Alex Example (alex@example.test, 555-0100). Charge on account 0000-1111 at 1 Test Street was wrong. Alex Example</textarea>
+    <p class="hint">Sample data only. Use synthetic or non-sensitive text while testing.</p>
     <div class="row">
-      <button id="redact" class="primary">Find and redact personal data</button>
-      <label class="toggle"><input type="checkbox" id="forcecloud"> Force cloud (skip on-device)</label>
-      <span id="avail" class="muted"></span>
+      <button id="redact" class="primary" type="button">Find personal data</button>
+      <label class="toggle"><input type="checkbox" id="forcecloud"> Skip on-device AI and use the cloud</label>
     </div>
-    <p id="status" class="status" role="status"></p>
+    <p id="avail" class="hint"></p>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
   </section>
 
-  <section class="card hidden" id="card2">
-    <h2>2. What leaves your device</h2>
-    <div id="route" class="route"></div>
-    <div class="cols">
-      <div><h3>Original <span class="pill local">stays on this device</span></h3><div id="orig" class="doc"></div></div>
-      <div><h3>Redacted payload <span class="pill cloud">sent to the cloud</span></h3><div id="redacted" class="doc"></div></div>
-    </div>
-    <p id="legend" class="muted"></p>
-    <div class="row"><button id="draft" class="primary">Send redacted text to the cloud and draft a response</button></div>
-  </section>
+  <div id="card2" class="hidden">
+    <section class="zone device">
+      <div class="zone-label">On your device</div>
+      <div id="route" class="route" role="status"></div>
+      <div class="cols">
+        <figure>
+          <figcaption>Original <span class="tag">stays here</span></figcaption>
+          <div id="orig" class="sheet"></div>
+        </figure>
+        <figure>
+          <figcaption>Redacted <span class="tag out">what gets sent</span></figcaption>
+          <div id="redacted" class="sheet"></div>
+        </figure>
+      </div>
+      <p id="legend" class="hint"></p>
+    </section>
 
-  <section class="card hidden" id="card3">
-    <h2>3. Review, approve, finish</h2>
-    <h3>Cloud draft <span class="pill cloud">tokens only, no personal data</span></h3>
-    <div id="draftout" class="doc"></div>
-    <label class="approve"><input type="checkbox" id="approve"> I reviewed what was sent and the draft.</label>
-    <div class="row"><button id="final" class="primary" disabled>Fill in my details locally</button></div>
-    <div id="finalwrap" class="hidden">
-      <h3>Final letter <span class="pill local">built on this device</span></h3>
+    <div class="boundary">
+      <span class="line"></span>
+      <div class="gate">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span>Only the redacted text crosses this line</span>
+        <button id="draft" class="primary" type="button">Send to the cloud</button>
+      </div>
+      <span class="line"></span>
+    </div>
+  </div>
+
+  <div id="card3" class="hidden">
+    <section class="zone cloud">
+      <div class="zone-label">In the cloud</div>
+      <figure>
+        <figcaption>Draft letter <span class="tag out">tokens only, no personal data</span></figcaption>
+        <div id="draftout" class="sheet"></div>
+      </figure>
+    </section>
+
+    <div class="boundary">
+      <span class="line"></span>
+      <div class="gate">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <span>Your details are restored on this device only</span>
+        <label class="toggle"><input type="checkbox" id="approve"> I reviewed what was sent and the draft</label>
+        <button id="final" class="primary" type="button" disabled>Restore my details</button>
+      </div>
+      <span class="line"></span>
+    </div>
+
+    <section class="zone device hidden" id="finalwrap">
+      <div class="zone-label">Back on your device</div>
       <p id="unresolved" class="route cloud hidden"></p>
-      <div id="finalout" class="doc"></div>
-      <div class="row"><button id="copy">Copy letter</button><span id="copied" class="muted"></span></div>
-    </div>
-  </section>
+      <figure>
+        <figcaption>Final letter <span class="tag">built here</span></figcaption>
+        <div id="finalout" class="sheet"></div>
+      </figure>
+      <div class="row"><button id="copy" type="button">Copy letter</button><span id="copied" class="hint" role="status"></span></div>
+    </section>
+  </div>
 </main>
-<footer>Redacto · Firebase AI Logic hybrid inference · Gemini Nano on-device, Gemini in the cloud</footer>
+<footer>Firebase AI Logic hybrid inference. Gemini Nano runs on your device; Gemini runs in the cloud.</footer>
 <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

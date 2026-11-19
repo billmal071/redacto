@@ -28,15 +28,17 @@ function say(msg: string, err = false) {
 }
 const errText = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
-/** Token type -> highlight colour class. */
-function kind(tokOrType: string): string {
-  const t = tokOrType.toUpperCase();
-  if (t.includes("PERSON") || t.includes("NAME")) return "k-person";
-  if (t.includes("EMAIL")) return "k-email";
-  if (t.includes("PHONE")) return "k-phone";
-  if (t.includes("ACCOUNT") || t.includes("CARD")) return "k-account";
-  if (t.includes("ADDRESS")) return "k-address";
-  return "k-other";
+/** Stagger the stamp animation across the redaction bars. */
+function stamp() {
+  document.querySelectorAll<HTMLElement>("mark.bar").forEach((el, i) => el.style.setProperty("--i", String(i)));
+}
+
+/** Plain-language messages for the errors users can actually act on. */
+function friendly(e: unknown): string {
+  const s = errText(e);
+  if (/\[401|\[403|App Check/i.test(s)) return "The cloud rejected this request (App Check). Reload the page. If it keeps happening, clear this site's data and try again.";
+  if (/\[429|\[500|\[503|high demand/i.test(s)) return "Google's model is busy right now. Wait a few seconds and try again.";
+  return s;
 }
 
 async function nanoStatus(): Promise<string> {
@@ -69,7 +71,7 @@ $("redact").addEventListener("click", async () => {
   const forceCloud = $<HTMLInputElement>("forcecloud").checked;
   const btn = $<HTMLButtonElement>("redact");
   btn.disabled = true;
-  say("Working...");
+  say("Finding personal data...");
   try {
     const status = forceCloud ? "forced" : await nanoStatus();
     const why = forceCloud
@@ -97,8 +99,9 @@ $("redact").addEventListener("click", async () => {
     const r = applyRedaction(text, entities);
     map = r.map;
     const tokOf = new Map(Object.entries(map).map(([tok, v]) => [v, tok]));
-    $("orig").innerHTML = highlight(text, Object.values(map), (v) => ({ cls: kind(tokOf.get(v) ?? ""), title: tokOf.get(v) }));
-    $("redacted").innerHTML = highlight(r.redacted, Object.keys(map), (t) => ({ cls: kind(t) }));
+    $("orig").innerHTML = highlight(text, Object.values(map), (v) => ({ cls: "hl", title: tokOf.get(v) }));
+    $("redacted").innerHTML = highlight(r.redacted, Object.keys(map), () => ({ cls: "bar" }));
+    stamp();
     $("legend").textContent = `${Object.keys(map).length} item(s) replaced with tokens. The token-to-value map stays in this tab's memory only.`;
     routeBanner(res.response.inferenceSource === InferenceSource.ON_DEVICE ? "on-device" : "cloud", ms, why);
     show("card2");
@@ -110,7 +113,7 @@ $("redact").addEventListener("click", async () => {
     setStep(2);
     say("");
   } catch (e) {
-    say("Error: " + errText(e), true);
+    say(friendly(e), true);
   } finally {
     btn.disabled = false;
   }
@@ -125,11 +128,12 @@ $("draft").addEventListener("click", async () => {
   try {
     const redacted = $("redacted").textContent ?? "";
     draftText = await draftResponse(redacted, Object.keys(map), (n) => ($("draftout").textContent = `Google is busy, retrying (${n})...`));
-    $("draftout").innerHTML = highlight(draftText, Object.keys(map), (t) => ({ cls: kind(t) }));
+    $("draftout").innerHTML = highlight(draftText, Object.keys(map), () => ({ cls: "bar" }));
+    stamp();
     $<HTMLButtonElement>("final").disabled = !$<HTMLInputElement>("approve").checked;
     setStep(3);
   } catch (e) {
-    $("draftout").textContent = "Error: " + errText(e);
+    $("draftout").textContent = friendly(e);
   } finally {
     btn.disabled = false;
   }
@@ -141,7 +145,7 @@ $("approve").addEventListener("change", () => {
 
 $("final").addEventListener("click", () => {
   const finalText = rehydrate(draftText, map);
-  $("finalout").textContent = finalText;
+  $("finalout").innerHTML = highlight(finalText, Object.values(map), () => ({ cls: "hl" }));
   const left = unresolvedTokens(finalText);
   $("unresolved").textContent = left.length ? `Check before sending: the draft contains placeholders we could not fill in: ${left.join(", ")}. Edit or remove them.` : "";
   show("unresolved", left.length > 0);
@@ -152,3 +156,13 @@ $("copy").addEventListener("click", async () => {
   await navigator.clipboard.writeText($("finalout").textContent ?? "");
   $("copied").textContent = "Copied";
 });
+
+function applyTheme(t: "light" | "dark") {
+  document.documentElement.dataset.theme = t;
+  try { localStorage.setItem("redacto-theme", t); } catch { /* storage blocked */ }
+  $("themeicon").textContent = t === "dark" ? "☀" : "☾";
+  $("themelabel").textContent = t === "dark" ? "Light" : "Dark";
+  $("theme").setAttribute("aria-label", t === "dark" ? "Switch to light mode" : "Switch to dark mode");
+}
+applyTheme((document.documentElement.dataset.theme as "light" | "dark") ?? "light");
+$("theme").addEventListener("click", () => applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
