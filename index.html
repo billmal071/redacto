@@ -23,8 +23,21 @@
 
 <main>
   <section class="hero">
-    <h1>Redact on your device.<br>Draft in the cloud.</h1>
-    <p>Paste a payment dispute. Personal details are swapped for tokens on your device, so the cloud only ever reads the redacted text.</p>
+    <div class="hero-copy">
+      <h1>Redact on your device.<br>Draft in the cloud.</h1>
+      <p>Paste a payment dispute. Personal details are swapped for tokens on your device, so the cloud only ever reads the redacted text.</p>
+    </div>
+    <div class="specimen" aria-hidden="true">
+      <div class="sheet mini">
+        <span class="tag">your device</span>
+        <p>Hi, I'm <mark class="hl">Alex Example</mark> (<mark class="hl">alex@example.test</mark>). The charge on account <mark class="hl">0000-1111</mark> was wrong.</p>
+      </div>
+      <div class="mini-boundary"><span class="line"></span><span class="node"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> only this crosses</span><span class="line"></span></div>
+      <div class="sheet mini">
+        <span class="tag out">sent to the cloud</span>
+        <p>Hi, I'm <mark class="bar" style="--i:2">[PERSON_NAME_1]</mark> (<mark class="bar" style="--i:3">[EMAIL_1]</mark>). The charge on account <mark class="bar" style="--i:4">[ACCOUNT_NUMBER_1]</mark> was wrong.</p>
+      </div>
+    </div>
   </section>
 
   <ol class="steps" aria-label="Progress">
@@ -60,6 +73,7 @@
           <div id="redacted" class="sheet"></div>
         </figure>
       </div>
+      <div id="found" class="chips"></div>
       <p id="legend" class="hint"></p>
     </section>
 

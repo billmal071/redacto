@@ -51,14 +51,38 @@ async function checkAvailability() {
   $("avail").textContent = s === "absent" ? "On-device AI not available in this browser; cloud will be used." : `On-device AI: ${s}`;
 }
 
+const svg = (d: string) => `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICON_CHIP = svg('<rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>');
+const ICON_CLOUD = svg('<path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.7 1.5A4 4 0 0 0 6.5 19z"/>');
+
+/** Chips like "2 person name" from the token map (distinct values per type). */
+function renderFound() {
+  const counts = new Map<string, number>();
+  for (const tok of Object.keys(map)) {
+    const type = tok.slice(1).replace(/_\d+\]$/, "").replace(/_/g, " ").toLowerCase();
+    counts.set(type, (counts.get(type) ?? 0) + 1);
+  }
+  const box = $("found");
+  box.replaceChildren(
+    ...[...counts].map(([type, n]) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      const b = document.createElement("b");
+      b.textContent = String(n);
+      chip.append(b, type);
+      return chip;
+    }),
+  );
+}
+
 function routeBanner(source: "on-device" | "cloud", ms: number, why: string) {
   const r = $("route");
   if (source === "on-device") {
     r.className = "route";
-    r.innerHTML = `<b>Analysed on this device</b> with Gemini Nano in ${ms} ms. Your original text was not sent anywhere.`;
+    r.innerHTML = `${ICON_CHIP}<b>Analysed on this device</b> with Gemini Nano in ${ms} ms. Your original text was not sent anywhere.`;
   } else {
     r.className = "route cloud";
-    r.innerHTML = `<b>Cloud fallback</b> (${why}). Gemini found the personal data in ${ms} ms, so your <b>original text was sent to the cloud</b> for this step. Only the redacted text is sent for drafting.`;
+    r.innerHTML = `${ICON_CLOUD}<b>Cloud fallback</b> (${why}). Gemini found the personal data in ${ms} ms, so your <b>original text was sent to the cloud</b> for this step. Only the redacted text is sent for drafting.`;
   }
 }
 
@@ -102,6 +126,7 @@ $("redact").addEventListener("click", async () => {
     $("orig").innerHTML = highlight(text, Object.values(map), (v) => ({ cls: "hl", title: tokOf.get(v) }));
     $("redacted").innerHTML = highlight(r.redacted, Object.keys(map), () => ({ cls: "bar" }));
     stamp();
+    renderFound();
     $("legend").textContent = `${Object.keys(map).length} item(s) replaced with tokens. The token-to-value map stays in this tab's memory only.`;
     routeBanner(res.response.inferenceSource === InferenceSource.ON_DEVICE ? "on-device" : "cloud", ms, why);
     show("card2");

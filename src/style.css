@@ -1,7 +1,7 @@
 :root{
   --bg:#eef1f5;--surface:#ffffff;--sheet:#ffffff;--line:#d6dbe5;--line-strong:#b4bccb;
   --ink:#101828;--muted:#566074;--device:#0b7a6b;--cloud:#b4540a;
-  --hl:#ffe98a;--hl-line:#e6b800;--bar:#0b0f19;--bar-ink:#ffffff;--bar-line:#0b0f19;
+  --dot:#c9d0dd;--hl:#ffe98a;--hl-line:#e6b800;--bar:#0b0f19;--bar-ink:#ffffff;--bar-line:#0b0f19;
   --btn:#101828;--btn-ink:#ffffff;--danger:#b42318;--shadow:0 1px 0 rgba(16,24,40,.06),0 14px 24px -18px rgba(16,24,40,.35);
   --serif:Charter,"Iowan Old Style","Palatino Linotype",Georgia,serif;
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -10,14 +10,14 @@
 :root[data-theme="dark"]{
   --bg:#0a0e16;--surface:#111826;--sheet:#182033;--line:#27324a;--line-strong:#3a4763;
   --ink:#e8ecf4;--muted:#97a3ba;--device:#3dd6be;--cloud:#f5a04a;
-  --hl:rgba(255,214,64,.26);--hl-line:#f2c230;--bar:#000000;--bar-ink:#ffffff;--bar-line:#4a5873;
+  --dot:#1e283c;--hl:rgba(255,214,64,.26);--hl-line:#f2c230;--bar:#000000;--bar-ink:#ffffff;--bar-line:#4a5873;
   --btn:#e8ecf4;--btn-ink:#0a0e16;--danger:#ff8a80;--shadow:0 0 0 rgba(0,0,0,0),0 14px 28px -18px rgba(0,0,0,.8);
 }
 *{box-sizing:border-box}
 html{color-scheme:light dark}
 :root[data-theme="dark"]{color-scheme:dark}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
-.top,main,footer{max-width:980px;margin:0 auto;padding-left:24px;padding-right:24px}
+body{position:relative;margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+.top,main,footer{max-width:1080px;margin:0 auto;padding-left:24px;padding-right:24px}
 .top{display:flex;justify-content:space-between;align-items:center;padding-top:22px;padding-bottom:6px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:-.01em}
 .brand img{border-radius:8px}
@@ -79,3 +79,37 @@ button:disabled{opacity:.4;cursor:not-allowed}
 @media(max-width:760px){.boundary .line{display:none}.gate{width:100%}}
 .hidden{display:none!important}
 footer{padding-top:18px;padding-bottom:30px;color:var(--muted);font-size:12px}
+
+/* desk: faint dot grid behind the hero */
+body::before{content:"";position:absolute;inset:0 0 auto 0;height:620px;z-index:-1;pointer-events:none;
+  background-image:radial-gradient(var(--dot) 1.2px,transparent 1.6px);background-size:22px 22px;
+  -webkit-mask-image:linear-gradient(#000 20%,transparent);mask-image:linear-gradient(#000 20%,transparent)}
+
+/* hero: headline beside a live specimen of the product */
+.hero{display:grid;grid-template-columns:1.3fr .7fr;gap:48px;align-items:center;padding:34px 0 8px}
+.hero h1{font-size:clamp(32px,5vw,56px);line-height:1.04;letter-spacing:-.04em;max-width:none;margin-bottom:16px}
+.hero p{max-width:46ch}
+.specimen{display:flex;flex-direction:column;gap:0;transform:rotate(1.4deg);max-width:380px;justify-self:end;width:100%}
+.sheet.mini{padding:14px 16px 16px;min-height:0;font-size:15px;line-height:1.7;white-space:normal}
+.sheet.mini p{margin:8px 0 0}
+.sheet.mini .tag{display:inline-block;font:500 11px var(--sans)}
+.mini-boundary{display:flex;align-items:center;gap:10px;margin:10px 0;color:var(--muted);font-size:12px}
+.mini-boundary .line{flex:1;border-top:2px dashed var(--line-strong)}
+.mini-boundary .node{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--line-strong);border-radius:999px;background:var(--surface)}
+.specimen mark.bar{font-size:11px;padding:1px 6px;animation-delay:calc(var(--i,0)*160ms + .5s)}
+@media(max-width:860px){.hero{grid-template-columns:1fr;gap:26px}.specimen{transform:none;justify-self:stretch;max-width:none}}
+
+/* spine: gates hang off the zone rule like nodes */
+.boundary .line:first-child{flex:none;width:22px}
+.boundary{margin:20px 0}
+
+/* paper: dog-eared sheets */
+div.sheet{position:relative;overflow:hidden}
+div.sheet::after{content:"";position:absolute;top:0;right:0;width:20px;height:20px;background:linear-gradient(225deg,var(--bg) 50%,var(--line) 50%)}
+
+/* what we found */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+.chips:empty{display:none}
+.chip{display:inline-flex;align-items:baseline;gap:6px;padding:4px 11px;border:1px solid var(--line-strong);border-radius:999px;background:var(--surface);font-size:13px}
+.chip b{font:700 13px var(--mono)}
+.route svg{vertical-align:-3px;margin-right:6px}
